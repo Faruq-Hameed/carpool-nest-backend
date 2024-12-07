@@ -11,5 +11,4 @@ export default registerAs('database', () => ({
     autoLoadEntities: true,
     entities: ['dist/**/*.entity{.ts,.js}'],
     migrations: ['dist/migrations/*{.ts,.js}'],
-
 }))
