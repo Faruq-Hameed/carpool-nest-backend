@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { CarsModule } from './modules/cars/cars.module';
-import { RidesModule } from './rides/rides.module';
+import { RidesModule } from './modules/rides/rides.module';
 
 import databaseConfig from './config/database.config';
 import { validate } from './config/env.validation';
