@@ -1,7 +1,7 @@
 import { Car } from "src/modules/cars/entities/car.entity";
 import { Ride } from "src/modules/rides/entities/ride.entity";
 import { Status } from "src/shared/enums/status.enum";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('users')
 export class User {
@@ -10,7 +10,8 @@ export class User {
 
   @Column({ unique: true })
   phonenumber: string;
-
+  
+  @Index()
   @Column({ unique: true })
   email: string;
 
@@ -20,31 +21,47 @@ export class User {
   @Column()
   lastname: string;
 
+  @Index()
   @Column({ unique: true })
   username: string;
 
-  @Column({ nullable: true })
-  profilePicture?: string;
+  @Column()
+  password: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   balance: number;
 
   @Column({ nullable: true })
-  licenseVerification_info: string;
+  profilePicture?: string;
 
-  @Column({ default: false })
-  isLicenseVerified: boolean;
+  @Column({ nullable: true })
+  occupation?: string;
 
+  @Column({ nullable: true })
+  residential: string;
 
-  @Column({ default: false })
-  isAdmin: boolean;
-
+  @Index()
   @Column({
     type: 'enum',
     enum: Status,
     default: Status.RESTRICTED
   })
   status: Status;
+
+  @Column({ default: false })
+  isVerified: boolean;
+
+  @Column({ type: 'json', nullable: true })
+  verificationInfo?: Record<string, any>; //verification info returned from provider
+
+  @Column({ type: 'json', nullable: true })
+  licenseVerificationInfo?: Record<string, any>; //verification info returned from provider 
+
+  @Column({ default: false })
+  isLicenseVerified: boolean;
+
+  @Column({ default: false })
+  isAdmin: boolean;
 
   @Column({ default: 0 })
   totalTripsJoined: number;
