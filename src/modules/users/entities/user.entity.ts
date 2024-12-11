@@ -86,28 +86,19 @@ export class User {
   //   @OneToMany(() => Ride, ride => ride.driver)
   //   rides: Ride[];
 
-  private currentPasswordHash?: string; // temporary field for current password
-  @BeforeInsert()
-  async beforeInsert(): Promise<void> {
-    await this.hashPassword();
-  }
 
-  @BeforeUpdate()
-  async beforeUpdate(): Promise<void> {
-    this.currentPasswordHash = this.password; // Ensure the current hash is loaded first
-    await this.hashPassword();
-  }
 
-  // Hash the password only if it has been modified
-  private async hashPassword(): Promise<void> {
-    if (this.password && this.password !== this.currentPasswordHash) {
-      const salt = await bcrypt.genSalt(10);
-      this.password = await bcrypt.hash(this.password, salt);
-    }
-  }
+
+
+  // private async hashPassword(): Promise<void> {
+  //   if (this.password && this.password !== this.currentPasswordHash) {
+  //     const salt = await bcrypt.genSalt(10);
+  //     this.password = await bcrypt.hash(this.password, salt);
+  //   }
+  // }
 
   // Method to compare passwords
-  async comparePassword(userPassword: string): Promise<boolean> {
-    return bcrypt.compare(userPassword, this.password);
-  }
+  // async comparePassword(userPassword: string): Promise<boolean> {
+  //   return bcrypt.compare(userPassword, this.password);
+  // }
 }

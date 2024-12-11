@@ -2,25 +2,29 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
+
 import  {User}  from './entities/user.entity';
+import { PasswordService } from './password.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly passwordService: PasswordService
   ) {}
 
   // Create a new user
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserDto);
+    user.password = await this.passwordService.hash(user.password)
     return this.userRepository.save(user);
   }
 
   async tempLogin(data: Record<string, any>): Promise<User> {
     const user= await this.userRepository.findOneBy({ username:data.username });
-    const isPasswordCorrect = await user.comparePassword(data.password as string);
+    const isPasswordCorrect = await this.passwordService.compare(data.password as string, user.password);
     if(!isPasswordCorrect) throw new BadRequestException('incorrect password');
     return user;
     
