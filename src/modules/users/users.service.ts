@@ -18,7 +18,6 @@ export class UserService {
 
   // Create a new user
   async createUser(createUserDto: CreateUserDto): Promise<IPublicUserFields> {
-    try {
       const newUser = this.userRepository.create(createUserDto);
       const savedData = await this.userRepository.save(newUser);
       return {
@@ -30,13 +29,6 @@ export class UserService {
         phonenumber: savedData.phonenumber
      }
 
-    } catch (error) {
-      if (error.code === '23505') { // PostgreSQL unique constraint error
-        const duplicateField = this.extractDuplicateField(error);
-        throw new ConflictException(`User already exists with this ${duplicateField} `);
-      }
-      throw error;
-    }
   }
 
   // Fetch a user by ID
