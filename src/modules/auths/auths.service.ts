@@ -16,7 +16,8 @@ export class AuthsService {
   async register(createUserDto: CreateUserDto): Promise<IAuthReturn> {
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
     const user = await this.userService.createUser(createUserDto);
-    //send welcome email to user, let him know next step too i.e basic kyc
+    //send welcome email to user, 
+    // let him know next step too i.e basic kyc
     return {
       token: await this.jwtService.signAsync({ userId: user.id, username: user.username}),
       user

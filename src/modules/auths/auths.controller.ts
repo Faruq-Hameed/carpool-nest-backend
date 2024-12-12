@@ -21,14 +21,12 @@ export class AuthsController {
 
   @Post('login')
    async login(@Body() loginUserDto: LoginUserDto): Promise<IAuthResponse> {
-
     const response = await this.authsService.login(loginUserDto)
     return {
       message: "User login successfully",
       data: {
         ...response
       }
-     
   }
 
    }
