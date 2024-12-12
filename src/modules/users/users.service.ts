@@ -47,7 +47,9 @@ export class UserService {
         lastname: savedData.lastname,
         username: savedData.username,
         email: savedData.email,
-        phonenumber: savedData.phonenumber
+        phonenumber: savedData.phonenumber,
+        createdAt: savedData.createdAt,
+        updatedAt: savedData.updatedAt
      }
 
   }

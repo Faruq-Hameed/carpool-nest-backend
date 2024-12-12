@@ -29,12 +29,13 @@ export class AuthsService {
     const { email, password } = loginUserDto
     const user = await this.userService.findUserByField(
       { email },
-      ["firstname", "lastname", "username", "email", "phonenumber", "password"],
+      ["id","firstname", "lastname", "username", "email", "phonenumber", "password", "createdAt", "updatedAt"],
     );
     const isPasswordCorrect = await bcrypt.compare(password, user.password)
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('Invalid credentials')
     };
+    delete user.password;
     //login record should be stored later
     return {
       token: await this.jwtService.signAsync({ userId: user.id, username: user.username}),
