@@ -5,7 +5,7 @@ import { LoginUserDto } from './dto/login-auth.dto';
 import { UserService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
-import { IAuthResponse } from './interfaces/response';
+import { IAuthResponse, IAuthReturn } from './interfaces/response';
 
 @Injectable()
 export class AuthsService {
@@ -13,19 +13,18 @@ export class AuthsService {
     private jwtService: JwtService
   ) { }
 
-  async register(createUserDto: CreateUserDto): Promise<IAuthResponse> {
+  async register(createUserDto: CreateUserDto): Promise<IAuthReturn> {
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
     const user = await this.userService.createUser(createUserDto);
     //send welcome email to user, let him know next step too i.e basic kyc
     return {
-      message: 'Registration successful',
       token: await this.jwtService.signAsync({ userId: user.id, username: user.username}),
       user
     }
 
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<IAuthResponse> {
+  async login(loginUserDto: LoginUserDto): Promise<IAuthReturn> {
     const { email, password } = loginUserDto
     const user = await this.userService.findUserByField(
       { email },
@@ -37,7 +36,6 @@ export class AuthsService {
     };
     //login record should be stored later
     return {
-      message: 'Login successful',
       token: await this.jwtService.signAsync({ userId: user.id, username: user.username}),
       user
     }

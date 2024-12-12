@@ -2,36 +2,34 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AuthsService } from './auths.service';
 import {  LoginUserDto } from './dto/login-auth.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { IAuthResponse } from './interfaces/response';
 
 @Controller('auths')
 export class AuthsController {
   constructor(private readonly authsService: AuthsService) { }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-
-    return {message: "login success", user: this.authsService.register(createUserDto)}
+  async create(@Body() createUserDto: CreateUserDto): Promise<IAuthResponse> {
+    const response = await this.authsService.register(createUserDto)
+    return {
+      message: "User created successfully",
+      data: {
+        ...response
+      }
+    }
   }
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto) {
-    console.log('JWT_SECRET:', process.env.JWT_SECRET);
-    console.log('JWT_EXPIRES:', process.env.JWT_EXPIRES);
-    return this.authsService.login(loginUserDto)
+   async login(@Body() loginUserDto: LoginUserDto): Promise<IAuthResponse> {
+
+    const response = await this.authsService.login(loginUserDto)
+    return {
+      message: "User login successfully",
+      data: {
+        ...response
+      }
+     
   }
-  // @Get()
-  // findAll() {
-  //   return this.authsService.findAll();
-  // }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.authsService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-  //   return this.authsService.update(+id, updateAuthDto);
-  // }
-
+   }
 }
