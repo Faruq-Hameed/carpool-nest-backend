@@ -9,6 +9,7 @@ import { RidesModule } from './modules/rides/rides.module';
 
 import databaseConfig from './config/database.config';
 import { validate } from './config/env.validation';
+import { AuthsModule } from './modules/auths/auths.module';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { validate } from './config/env.validation';
         configService.get('database'),
       inject: [ConfigService],
     }),
-    UsersModule, CarsModule, RidesModule],
+    UsersModule, CarsModule, RidesModule, AuthsModule],
   controllers: [AppController],
   providers: [AppService],
 })

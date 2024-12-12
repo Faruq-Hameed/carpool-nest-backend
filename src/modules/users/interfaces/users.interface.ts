@@ -1,6 +1,6 @@
 import { Status } from "src/shared/enums/status.enum";
 
-export interface User {
+export interface IUser {
     id: string;
     phonenumber: string;
     email: string;

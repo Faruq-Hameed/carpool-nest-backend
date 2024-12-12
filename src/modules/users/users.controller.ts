@@ -12,11 +12,6 @@ export class UsersController {
     return this.UserService.createUser(createUserDto);
   }
 
-  @Post('login')
-  temporaryLogin(@Body() loginUser: Partial<CreateUserDto>) {
-    return this.UserService.tempLogin(loginUser);
-  }
-  // tempLogin
 
   @Get()
   findAll() {
