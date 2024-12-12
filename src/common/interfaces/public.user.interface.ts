@@ -5,4 +5,6 @@ lastname: string;
 username: string;
 email: string;
 phonenumber: string;
+createdAt: Date;
+updatedAt: Date;
 }
