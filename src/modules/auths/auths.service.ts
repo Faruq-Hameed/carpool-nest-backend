@@ -29,12 +29,14 @@ export class AuthsService {
     const { email, password } = loginUserDto
     const user = await this.userService.findUserByField(
       { email },
-      ["id","firstname", "lastname", "username", "email", "phonenumber", "password", "createdAt", "updatedAt"],
+      ["id","firstname", "lastname", "username", "email", "phonenumber","profilePicture", "password", "createdAt", "updatedAt"],
     );
     const isPasswordCorrect = await bcrypt.compare(password, user.password)
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('Invalid credentials')
     };
+    // const {profilePicture} = user
+    // user.profilePicture = user.profilePicture?
     delete user.password;
     //login record should be stored later
     return {

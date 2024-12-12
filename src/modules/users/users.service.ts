@@ -48,6 +48,7 @@ export class UserService {
         username: savedData.username,
         email: savedData.email,
         phonenumber: savedData.phonenumber,
+        profilePicture: savedData.profilePicture,
         createdAt: savedData.createdAt,
         updatedAt: savedData.updatedAt
      }
