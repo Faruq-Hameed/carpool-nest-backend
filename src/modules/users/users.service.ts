@@ -19,7 +19,26 @@ export class UserService {
   // Create a new user
   async createUser(createUserDto: CreateUserDto): Promise<IPublicUserFields> {
     const { email, phonenumber, username } = createUserDto;
-    const existingUser = await this.fin
+    const existingUser = await this.userRepository.findOne({
+      where: [
+        { email },
+      { phonenumber },
+        { username },
+      ],
+      select: ["id", "email", "phonenumber", "username"]
+    })
+
+    if (existingUser) {
+      const existingField = existingUser.email === email
+        ? 'email'
+        : existingUser.phonenumber === phonenumber
+          ? 'phone'
+          : 'username'
+      throw new ConflictException(
+        `A user with this ${existingField} already exist`
+      )
+    }
+
       const newUser = this.userRepository.create(createUserDto);
       const savedData = await this.userRepository.save(newUser);
       return {
@@ -46,7 +65,7 @@ export class UserService {
   async findUserByField(
     field: Partial<User>, selectFields?: (keyof User)[]
   ): Promise<User | null> {
-    return this.userRepository.findOne({
+    return await this.userRepository.findOne({
       where: field,
       select: selectFields || undefined, // If no fields are specified, return all fields
     });
