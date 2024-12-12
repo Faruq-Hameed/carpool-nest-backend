@@ -20,7 +20,7 @@ import { AuthsModule } from './modules/auths/auths.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => 
+      useFactory: async (configService: ConfigService) =>
         configService.get('database'),
       inject: [ConfigService],
     }),
@@ -28,4 +28,4 @@ import { AuthsModule } from './modules/auths/auths.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -6,6 +6,7 @@ import { Repository, DataSource } from 'typeorm';
 
 import { User } from './entities/user.entity';
 import { IUser } from './interfaces/users.interface';
+import { IPublicUserFields } from 'src/common/interfaces/public.user.interface';
 
 @Injectable()
 export class UserService {
@@ -16,10 +17,19 @@ export class UserService {
   ) { }
 
   // Create a new user
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: CreateUserDto): Promise<IPublicUserFields> {
     try {
       const newUser = this.userRepository.create(createUserDto);
-      return await this.userRepository.save(newUser);
+      const savedData = await this.userRepository.save(newUser);
+      return {
+        id: savedData.id,
+        firstname: savedData.firstname,
+        lastname: savedData.lastname,
+        username: savedData.username,
+        email: savedData.email,
+        phonenumber: savedData.phonenumber
+     }
+
     } catch (error) {
       if (error.code === '23505') { // PostgreSQL unique constraint error
         const duplicateField = this.extractDuplicateField(error);
@@ -34,10 +44,20 @@ export class UserService {
     return this.userRepository.findOneBy({ id });
   }
 
-  /**Find user by any fields e.g {username: 'user01'} */
-  async findUserByField(field: Partial<User>): Promise<User | null> {
-    return this.userRepository.findOneBy(field); 
+/**
+ * Find user by any field(s) e.g., { username: 'user01' }, ['username', 'email']
+ * @param field - The field(s) to match the user by.
+ * @param selectFields - The fields to return; defaults to all fields.
+ */
+  async findUserByField(
+    field: Partial<User>, selectFields?: (keyof User)[]
+  ): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: field,
+      select: selectFields || undefined, // If no fields are specified, return all fields
+    });
   }
+
   // Fetch all users
   async getAllUsers(): Promise<User[]> {
     return this.userRepository.find();

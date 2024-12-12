@@ -15,9 +15,10 @@ export class AuthsController {
 
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto) {
+    console.log('JWT_SECRET:', process.env.JWT_SECRET);
+    console.log('JWT_EXPIRES:', process.env.JWT_EXPIRES);
     return this.authsService.login(loginUserDto)
-   }
-
+  }
   // @Get()
   // findAll() {
   //   return this.authsService.findAll();
