@@ -8,6 +8,10 @@ export class AppController {
     private readonly cloudinaryService: CloudinaryService
   ) {}
 
+  @Post('upload')
+  upload(){
+    
+  }
 
   @Get()
   getHello(): string {

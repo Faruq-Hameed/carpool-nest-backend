@@ -30,6 +30,15 @@ class EnvironmentVariables {
 
     @IsString()
     JWT_EXPIRES: string;
+
+    @IsString()
+    CLOUDINARY_NAME: string;
+
+    @IsString()
+    CLOUDINARY_API_KEY: string;
+
+    @IsString()
+    CLOUDINARY_API_SECRET: string;
     
 }
 
