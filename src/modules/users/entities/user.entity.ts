@@ -1,17 +1,29 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, DeleteDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import * as bcrypt from 'bcrypt'
-import { Car } from "src/modules/cars/entities/car.entity";
-import { Ride } from "src/modules/rides/entities/ride.entity";
-import { Status } from "src/shared/enums/status.enum";
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { Car } from 'src/modules/cars/entities/car.entity';
+import { Ride } from 'src/modules/rides/entities/ride.entity';
+import { Status } from 'src/shared/enums/status.enum';
+import { Otp } from 'src/modules/otps/entities/otp.entity';
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string
+  id: string;
 
   @Column({ unique: true })
   phonenumber: string;
-  
+
   @Index()
   @Column({ unique: true })
   email: string;
@@ -29,6 +41,9 @@ export class User {
   @Column()
   password: string;
 
+  @OneToMany(() => Otp, (otp) => otp.user) //otp generated for the user
+  otps: Otp[];
+
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   balance: number;
 
@@ -45,7 +60,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: Status,
-    default: Status.RESTRICTED
+    default: Status.RESTRICTED,
   })
   status: Status;
 
@@ -56,7 +71,7 @@ export class User {
   verificationInfo?: Record<string, any>; //verification info returned from provider
 
   @Column({ type: 'json', nullable: true })
-  licenseVerificationInfo?: Record<string, any>; //verification info returned from provider 
+  licenseVerificationInfo?: Record<string, any>; //verification info returned from provider
 
   @Column({ default: false })
   isLicenseVerified: boolean;
@@ -85,10 +100,6 @@ export class User {
 
   //   @OneToMany(() => Ride, ride => ride.driver)
   //   rides: Ride[];
-
-
-
-
 
   // private async hashPassword(): Promise<void> {
   //   if (this.password && this.password !== this.currentPasswordHash) {

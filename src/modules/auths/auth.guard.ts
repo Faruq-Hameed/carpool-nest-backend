@@ -39,7 +39,7 @@ import { Reflector } from '@nestjs/core';
           }
         );
         // 💡 We're assigning the payload to the request object here
-        // so that we can access it in our route handlers
+        // so that we can access it in our route handlers as request.user
         request['user'] = payload;
       } catch {
         throw new UnauthorizedException();

@@ -11,6 +11,7 @@ import databaseConfig from './config/database.config';
 import { validate } from './config/env.validation';
 import { AuthsModule } from './modules/auths/auths.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -24,6 +25,15 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
       inject: [ConfigService],
+    }),
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.EMAIL_HOST,
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      },
     }),
     UsersModule, CarsModule, RidesModule, AuthsModule, CloudinaryModule],
   controllers: [AppController],
