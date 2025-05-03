@@ -21,8 +21,8 @@ export enum OtpChannel {
 
 @Entity()
 export class Otp {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => User, (user) => user.otps, { onDelete: 'CASCADE' })
   user: User;

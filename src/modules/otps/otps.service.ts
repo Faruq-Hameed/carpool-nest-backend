@@ -1,22 +1,24 @@
 // src/otp/otp.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Repository, MoreThan, LessThan } from 'typeorm';
 import { Otp } from './entities/otp.entity';
 import { UserService } from '../users/users.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { validateOtpDto } from './dto/validate-otp.dto';
+import { MailerService } from '@nestjs-modules/mailer';
+
 // import { Cron, CronExpression } from '@nestjs/schedule';
 @Injectable()
 export class OtpService {
-    // private readonly logger = new Logger("OTP CLEANUP SERVICE");
+  private readonly logger = new Logger("OTP CLEANUP SERVICE");
 
-  otpService: any;
-  mailService: any;
   constructor(
     @InjectRepository(Otp)
     private readonly otpRepository: Repository<Otp>,
     private userService: UserService,
+    private readonly mailService: MailerService,
   ) {}
 
   async generateOtp(generateOtp: CreateOtpDto): Promise<string> {
@@ -33,10 +35,11 @@ export class OtpService {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     const otp = this.otpRepository.create({
       ...generateOtp,
-      expiresAt: Date.now() + 5 * 60 * 1000,
+      otp: code,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
-    await this.otpRepository.save(otp)
-    console.log({otp})
+    await this.otpRepository.save(otp);
+    console.log({ otp });
 
     if (isEmail) {
       await this.mailService.sendMail({
@@ -46,10 +49,10 @@ export class OtpService {
         // template: './otp', // assuming a mailer template named otp.hbs or similar
         context: {
           name: user.firstname || user.email,
-          otp,
+          code,
         },
       });
-      return `otp sent to ${generateOtp.email}`;
+      return `OTP sent to ${generateOtp.email}`;
     } else {
       // Placeholder for SMS logic
       return `otp sent to ${generateOtp.email}`; //.phone later
@@ -73,13 +76,13 @@ export class OtpService {
     return !!record;
   }
 
-//   @Cron(CronExpression.EVERY_MINUTE)
-//   async handleOtpCleanup() {
-//     const now = new Date();
-//     const result = await this.otpRepository.delete({ expiresAt: LessThan(now) });
+    @Cron(CronExpression.EVERY_MINUTE)
+    async handleOtpCleanup() {
+      const now = new Date();
+      const result = await this.otpRepository.delete({ expiresAt: LessThan(now) });
 
-//     if (result.affected) {
-//       this.logger.log(`Deleted ${result.affected} expired OTP(s)`);
-//     }
-//   }
+      if (result.affected) {
+        this.logger.log(`Deleted ${result.affected} expired OTP(s)`);
+      }
+    }
 }
