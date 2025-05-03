@@ -39,7 +39,15 @@ class EnvironmentVariables {
 
     @IsString()
     CLOUDINARY_API_SECRET: string;
+
+    @IsString()
+    EMAIL_HOST: string;
+
+    @IsString()
+    EMAIL_USERNAME: string;
     
+    @IsString()
+    EMAIL_PASSWORD: string;
 }
 
 export function validate(config: Record<string, unknown>) {

@@ -12,6 +12,7 @@ import { validate } from './config/env.validation';
 import { AuthsModule } from './modules/auths/auths.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { OtpModule } from './modules/otps/otps.module';
 
 @Module({
   imports: [
@@ -35,8 +36,14 @@ import { MailerModule } from '@nestjs-modules/mailer';
         },
       },
     }),
-    UsersModule, CarsModule, RidesModule, AuthsModule, CloudinaryModule],
+    UsersModule,
+    CarsModule,
+    RidesModule,
+    AuthsModule,
+    CloudinaryModule,
+    OtpModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,14 +1,16 @@
 // src/otp/otp.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
+import { Repository, MoreThan, LessThan } from 'typeorm';
 import { Otp } from './entities/otp.entity';
 import { UserService } from '../users/users.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { validateOtpDto } from './dto/validate-otp.dto';
-
+// import { Cron, CronExpression } from '@nestjs/schedule';
 @Injectable()
 export class OtpService {
+    // private readonly logger = new Logger("OTP CLEANUP SERVICE");
+
   otpService: any;
   mailService: any;
   constructor(
@@ -33,6 +35,8 @@ export class OtpService {
       ...generateOtp,
       expiresAt: Date.now() + 5 * 60 * 1000,
     });
+    await this.otpRepository.save(otp)
+    console.log({otp})
 
     if (isEmail) {
       await this.mailService.sendMail({
@@ -68,4 +72,14 @@ export class OtpService {
     });
     return !!record;
   }
+
+//   @Cron(CronExpression.EVERY_MINUTE)
+//   async handleOtpCleanup() {
+//     const now = new Date();
+//     const result = await this.otpRepository.delete({ expiresAt: LessThan(now) });
+
+//     if (result.affected) {
+//       this.logger.log(`Deleted ${result.affected} expired OTP(s)`);
+//     }
+//   }
 }
