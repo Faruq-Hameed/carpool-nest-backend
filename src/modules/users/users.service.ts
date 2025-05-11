@@ -20,8 +20,8 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  // Create a new user
-  async createUser(createUserDto: CreateUserDto): Promise<IPublicUserFields> {
+  /** Create a new user */
+  async createUser(createUserDto: CreateUserDto): Promise<void> {
     const { email, phonenumber, username } = createUserDto;
     const existingUser = await this.userRepository.findOne({
       where: [{ email }, { phonenumber }, { username }],
@@ -42,17 +42,17 @@ export class UserService {
 
     const newUser = this.userRepository.create(createUserDto);
     const savedData = await this.userRepository.save(newUser);
-    return {
-      id: savedData.id,
-      firstname: savedData.firstname,
-      lastname: savedData.lastname,
-      username: savedData.username,
-      email: savedData.email,
-      phonenumber: savedData.phonenumber,
-      profilePicture: savedData.profilePicture,
-      createdAt: savedData.createdAt,
-      updatedAt: savedData.updatedAt,
-    };
+    // return {
+    //   id: savedData.id,
+    //   firstname: savedData.firstname,
+    //   lastname: savedData.lastname,
+    //   username: savedData.username,
+    //   email: savedData.email,
+    //   phonenumber: savedData.phonenumber,
+    //   profilePicture: savedData.profilePicture,
+    //   createdAt: savedData.createdAt,
+    //   updatedAt: savedData.updatedAt,
+    // };
   }
 
   // Fetch a user by ID
@@ -94,7 +94,7 @@ export class UserService {
 
   // Update a user's information
   async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    await this.userRepository.update(id, updateUserDto);
+    const user = await this.userRepository.update(id, updateUserDto);
     return this.getUserById(id);
   }
 

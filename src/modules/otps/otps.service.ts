@@ -1,5 +1,5 @@
 // src/otp/otp.service.ts
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Repository, MoreThan, LessThan } from 'typeorm';
@@ -59,7 +59,7 @@ export class OtpService {
     }
   }
 
-  async validateOtp(validateOtp: validateOtpDto) {
+  async validateOtp(validateOtp: validateOtpDto):Promise<void> {
     const { otp, purpose } = validateOtp;
     const isEmail = !!validateOtp.email;
     const field = isEmail
@@ -73,7 +73,11 @@ export class OtpService {
         expiresAt: MoreThan(new Date()),
       },
     });
-    return !!record;
+    if (!record) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+    // Delete the OTP record after successful validation
+    await this.otpRepository.delete(record.id);
   }
 
     @Cron(CronExpression.EVERY_MINUTE)

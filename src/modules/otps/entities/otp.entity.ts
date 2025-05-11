@@ -12,6 +12,7 @@ export enum PurposeEnum {
   VERIFY_EMAIL = 'verify_email',
   RESET_PASSWORD = 'reset_password',
   RESET_EMAIL = 'reset_email',
+  LOGIN= 'login'
 }
 
 export enum OtpChannel {

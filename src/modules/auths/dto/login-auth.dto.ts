@@ -8,3 +8,12 @@ export class LoginUserDto{
     @IsNotEmpty({message: 'password is required'})
     password: string;
 }
+
+export class OtpLoginDto{
+    @IsString({ message: 'otp is required' })
+    @IsNotEmpty({ message: 'otp is required' })
+    otp: string;
+
+    @IsEmail({}, { message: "Please enter valid email" })
+    email: string;
+}
