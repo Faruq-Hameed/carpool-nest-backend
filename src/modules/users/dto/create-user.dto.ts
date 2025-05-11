@@ -16,10 +16,6 @@ export class CreateUserDto {
     @IsNotEmpty({message: 'lastname is required'})
     @IsString()
     lastname: string;
-  
-    @IsNotEmpty({message: 'username is required'})
-    @IsString()
-    username: string;
 
     @IsNotEmpty({message: 'password is required'})
     @IsString()

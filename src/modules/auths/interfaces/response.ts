@@ -9,3 +9,8 @@ export interface IAuthResponse{
     message: string,
     data: IAuthReturn
 }
+
+export interface IGeneralResponse {
+    message: string;
+    data: any;
+}

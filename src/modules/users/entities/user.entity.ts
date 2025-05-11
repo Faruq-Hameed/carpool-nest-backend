@@ -34,9 +34,9 @@ export class User {
   @Column()
   lastname: string;
 
-  @Index()
-  @Column({ unique: true })
-  username: string;
+  // @Index()
+  // @Column({ unique: true }) //NOT NEEDED
+  // username: string;
 
   @Column()
   password: string;
