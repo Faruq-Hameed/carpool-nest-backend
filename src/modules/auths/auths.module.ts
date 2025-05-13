@@ -7,8 +7,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { OtpModule } from '../otps/otps.module';
 @Module({
-  imports: [UsersModule,
+  imports: [UsersModule,OtpModule,
     // MailerModule.forRoot({
     //   transport: {
     //     host: process.env.EMAIL_HOST,

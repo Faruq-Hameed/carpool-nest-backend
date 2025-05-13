@@ -7,7 +7,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, Or } from 'typeorm';
 
 import { User } from './entities/user.entity';
 import { IUser } from './interfaces/users.interface';
@@ -22,10 +22,10 @@ export class UserService {
 
   /** Create a new user */
   async createUser(createUserDto: CreateUserDto): Promise<void> {
-    const { email, phonenumber, username } = createUserDto;
+    const { email, phonenumber } = createUserDto;
     const existingUser = await this.userRepository.findOne({
-      where: [{ email }, { phonenumber }, { username }],
-      select: ['id', 'email', 'phonenumber', 'username'],
+      where: [{ email }, { phonenumber }],
+      select: ['id', 'email', 'phonenumber', ],
     });
 
     if (existingUser) {

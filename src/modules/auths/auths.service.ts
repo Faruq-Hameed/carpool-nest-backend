@@ -43,7 +43,6 @@ export class AuthsService {
         'id',
         'firstname',
         'lastname',
-        'username',
         'email',
         'phonenumber',
         'profilePicture',
@@ -60,7 +59,6 @@ export class AuthsService {
     return {
       token: await this.jwtService.signAsync({
         userId: user.id,
-        username: user.username,
       }),
       user,
     };
@@ -74,7 +72,6 @@ export class AuthsService {
         'id',
         'firstname',
         'lastname',
-        'username',
         'email',
         'phonenumber',
         'profilePicture',
@@ -95,7 +92,6 @@ export class AuthsService {
     return {
       token: await this.jwtService.signAsync({
         userId: user.id,
-        username: user.username,
       }),
       user,
     };
@@ -110,7 +106,6 @@ export class AuthsService {
         'id',
         'firstname',
         'lastname',
-        'username',
         'email',
         'phonenumber',
         'password',
