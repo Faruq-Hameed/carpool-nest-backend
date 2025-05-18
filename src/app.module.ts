@@ -13,6 +13,7 @@ import { AuthsModule } from './modules/auths/auths.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { OtpModule } from './modules/otps/otps.module';
+import { AuthClientService } from './auths-clients.service';
 
 @Module({
   imports: [
@@ -44,6 +45,6 @@ import { OtpModule } from './modules/otps/otps.module';
     OtpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthClientService],
 })
 export class AppModule {}
