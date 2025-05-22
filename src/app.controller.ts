@@ -9,7 +9,7 @@ import { Public } from './common/guards/public.guard';
 export class AppController {
   constructor(private readonly appService: AppService,
     private readonly cloudinaryService: CloudinaryService,
-    private readonly authClient: AuthClientService
+    // private readonly authClient: AuthClientService
   ) {}
 
   @Post('upload')
@@ -23,12 +23,12 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('test-validate') //testing auth microservice
-  async testValidate() {
-    console.log("request made to auth microservice");
-    const result = await this.authClient.validateUser({ userId: 1, token: 'abc123' });
-    console.log("request made to auth microservice RESPONDED");
+  // @Get('test-validate') //testing auth microservice
+  // async testValidate() {
+  //   console.log("request made to auth microservice");
+  //   const result = await this.authClient.validateUser({ userId: 1, token: 'abc123' });
+  //   console.log("request made to auth microservice RESPONDED");
 
-    return result;
-  }
+  //   return result;
+  // }
 }

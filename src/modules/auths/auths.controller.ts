@@ -75,4 +75,17 @@ export class AuthsController {
     };
   }
 
+
+  @Public()
+  @Get('check-user') 
+  async checkUser(@Body() data: any): Promise<any> {
+    console.log("request made to auth microservice from controller");
+    return await this.authsService.checkUser({ username: 'john' });
+  }
+  @Public()
+  @Post('emit-login')
+  async emitLogin(@Body() body: { username: string }) {
+    console.log('Emitted from controller')
+    return this.authsService.emtUserLogin(body.username);
+  }
 }

@@ -8,6 +8,7 @@ import { jwtConstants } from './constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { OtpModule } from '../otps/otps.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   imports: [UsersModule,OtpModule,
     // MailerModule.forRoot({
@@ -25,6 +26,32 @@ import { OtpModule } from '../otps/otps.module';
       secret: jwtConstants.secret,
       signOptions: { expiresIn:'30m' },
     }),
+        ClientsModule.register([
+      {
+        name: 'AUTH_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'],
+          queue: 'auth_queue',
+          queueOptions: {
+            durable: false,
+          },
+        },
+      },
+    ]),
+    ClientsModule.register([
+      {
+        name: 'USER_SERVICE',
+        transport: Transport.RMQ,
+        options:{
+           urls: ['amqp://localhost:5672'],
+          queue: 'user_queue',
+          queueOptions: {
+            durable: false,
+          },
+        }
+      }
+    ])
   ],
   controllers: [AuthsController],
   providers: [AuthsService,

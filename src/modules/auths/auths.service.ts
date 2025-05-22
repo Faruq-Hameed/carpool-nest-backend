@@ -1,13 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { ClientProxy } from '@nestjs/microservices';
+import { MailerService } from '@nestjs-modules/mailer';
+
 import { LoginUserDto, OtpLoginDto } from './dto/login-auth.dto';
 import { UserService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
 import { IAuthResponse, IAuthReturn } from './interfaces/response';
 import { CreateOtpDto } from '../otps/dto/create-otp.dto';
-import { MailerService } from '@nestjs-modules/mailer';
 import { OtpService } from '../otps/otps.service';
 import { OtpChannel, PurposeEnum } from '../otps/entities/otp.entity';
 import { ChangePasswordDto } from './dto/change-password-dto';
@@ -18,6 +20,8 @@ export class AuthsService {
     private userService: UserService,
     private jwtService: JwtService,
     private otpService: OtpService,
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('USER_SERVICE') private readonly userClient: ClientProxy,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<string> {
@@ -39,14 +43,7 @@ export class AuthsService {
     const { email, otp } = otpLoginDto; //THIS SHOULD BE EMAIL OR PHONE
     const user = await this.userService.findUserByField(
       { email },
-      [
-        'id',
-        'firstname',
-        'lastname',
-        'email',
-        'phonenumber',
-        'profilePicture',
-      ],
+      ['id', 'firstname', 'lastname', 'email', 'phonenumber', 'profilePicture'],
       true, //throw error if not found
     );
     //validate otp
@@ -102,14 +99,7 @@ export class AuthsService {
     const { email, password, otp } = changePasswordDto;
     const user = await this.userService.findUserByField(
       { email },
-      [
-        'id',
-        'firstname',
-        'lastname',
-        'email',
-        'phonenumber',
-        'password',
-      ],
+      ['id', 'firstname', 'lastname', 'email', 'phonenumber', 'password'],
       true,
     );
     //validate otp
@@ -121,5 +111,18 @@ export class AuthsService {
     });
     user.password = await bcrypt.hash(password, 10);
     await this.userService.updateUser(user.id, user);
+  }
+
+  async checkUser(data: any) {
+    return this.authClient.send({ cmd: 'validate-user' }, data);
+  }
+
+  async emtUserLogin(username: string) {
+    //assuming we've validated the user and login
+
+    this.userClient.emit('user_logged_in', { username });
+    //proceed with something else
+
+    return { message: 'Event emitted from monolith' };
   }
 }
