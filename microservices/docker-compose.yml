@@ -1,0 +1,63 @@
+version: '3.9'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"  # RabbitMQ management UI
+      - "5672:5672"    # RabbitMQ AMQP protocol
+    restart: always
+
+  gateway-service:
+    build:
+      context: .
+    container_name: gateway-service
+    depends_on:
+      - rabbitmq
+      - auth-db
+    environment:
+      - RABBITMQ_HOST=amqp://rabbitmq:5672
+      - AUTH_DB_HOST=auth-db
+      - AUTH_DB_PORT=5432
+      - AUTH_DB_USER=postgres
+      - AUTH_DB_PASSWORD=postgres
+      - AUTH_DB_NAME=authdb
+    ports:
+      - '3001:3000'
+    networks:
+      - backend
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: auth-service
+    depends_on:
+      - rabbitmq
+      - auth-db
+    environment:
+      - RABBITMQ_HOST=amqp://rabbitmq:5672
+      - AUTH_DB_HOST=auth-db
+      - AUTH_DB_PORT=5432
+      - AUTH_DB_USER=postgres
+      - AUTH_DB_PASSWORD=postgres
+      - AUTH_DB_NAME=authdb
+    ports:
+      - '3001:3000'
+    networks:
+      - backend
+ 
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+      
+networks:
+  backend:
+    driver: bridge
