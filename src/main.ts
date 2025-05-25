@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { AuthsModule } from './auths.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AuthsModule, {
     transport: Transport.RMQ, // using RabbitMQ as the transport method
     options: {
       urls: ['amqp://localhost:5672'], // RabbitMQ server URL. The protocol is amqp:// 

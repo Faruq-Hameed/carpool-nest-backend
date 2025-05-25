@@ -5,7 +5,6 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from 'src/modules/users/entities/user.entity';
 
 export enum PurposeEnum {
   VERIFY_PHONE = 'verify_phone',
@@ -25,8 +24,8 @@ export class Otp {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (user) => user.otps, { onDelete: 'CASCADE' })
-  user: User;
+  @Column()
+  userId: string //uuid of the user
 
   @Column()
   otp: string;

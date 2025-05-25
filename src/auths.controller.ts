@@ -7,85 +7,47 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBody,
-  ApiCreatedResponse,
-} from '@nestjs/swagger';
 import { AuthsService } from './auths.service';
-import { LoginUserDto, OtpLoginDto } from './dto/login-auth.dto';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { IAuthResponse, IGeneralResponse } from './interfaces/response';
-import { Public } from 'src/common/guards/public.guard';
-import { CreateOtpDto } from '../otps/dto/create-otp.dto';
-import { ChangePasswordDto } from './dto/change-password-dto';
-import { AuthResponseDto } from './dto/auth-response-dto';
 
-@ApiTags('auth')
-@Controller('auths')
+import { CreateUserDto } from 'src/shared/dto/create-user.dto';
+import { Public } from 'src/common/guards/public.guard';
+import { ChangePasswordDto } from './dto/change-password-dto';
+import { MessagePattern } from '@nestjs/microservices';
+
+@Controller()
 export class AuthsController {
   constructor(private readonly authsService: AuthsService) {}
 
-  @Public()
-  @Post()
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiBody({ type: CreateUserDto }) //type of the request body
-  @ApiCreatedResponse({ description: 'User created', type: AuthResponseDto }) //NOT YET TESTED
-  async create(@Body() createUserDto: CreateUserDto): Promise<IGeneralResponse> {
-    const message = await this.authsService.register(createUserDto);
-    return {
-      message,
-      data: null,
-    };
+  @MessagePattern({ cmd: 'create-auth' })
+  async create(createUserDto: CreateUserDto) {
+    return await this.authsService.register(createUserDto);
   }
 
-  @Public()
-  @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto): Promise<IAuthResponse> {
-    const response = await this.authsService.login(loginUserDto);
-    return {
-      message: 'User login successfully',
-      data: {
-        ...response,
-      },
-    };
-  }
+  // @Post('login')
+  // async login(@Body() loginUserDto: LoginUserDto) {
+  //   return await this.authsService.login(loginUserDto);
+  // }
 
-  @Public()
-  @Post('forget-password')
-  async forgetPassword(
-    @Body() changePasswordDto: ChangePasswordDto,
-  ): Promise<IAuthResponse> {
-    await this.authsService.resetPassword(changePasswordDto);
-    return {
-      message: 'Password reset successfully', //the user should login again
-      data: null,
-    };
-  }
-  @Public()
-  @Post('otp-login')
-  async otpLogin(@Body() otpLoginDto: OtpLoginDto): Promise<IAuthResponse> {
-    const response = await this.authsService.otpLogin(otpLoginDto);
-    return {
-      message: 'Otp verified, user login successfully',
-      data: {
-        ...response,
-      },
-    };
-  }
+  // @Post('forget-password')
+  // async forgetPassword(
+  //   @Body() changePasswordDto: ChangePasswordDto,
+  // ) {
+  //   return await this.authsService.resetPassword(changePasswordDto); //this returns void so normal listen is okay
+  // }
+  // @Post('otp-login')
+  // async otpLogin(@Body() otpLoginDto: OtpLoginDto) {
+  //   return await this.authsService.otpLogin(otpLoginDto);
 
+  // }
 
-  @Public()
-  @Get('check-user') 
+  @Get('check-user')
   async checkUser(@Body() data: any): Promise<any> {
-    console.log("request made to auth microservice from controller");
+    console.log('request made to auth microservice from controller');
     return await this.authsService.checkUser({ username: 'john' });
   }
-  @Public()
   @Post('emit-login')
   async emitLogin(@Body() body: { username: string }) {
-    console.log('Emitted from controller')
+    console.log('Emitted from controller');
     return this.authsService.emtUserLogin(body.username);
   }
 }

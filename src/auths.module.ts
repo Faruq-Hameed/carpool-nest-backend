@@ -1,23 +1,27 @@
 import { Module } from '@nestjs/common';
 import { AuthsService } from './auths.service';
 import { AuthsController } from './auths.controller';
-import { UserService } from '../users/users.service';
-import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { OtpModule } from '../otps/otps.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Auth } from './entities/auth.entity';
+import { Otp } from './entities/otp.entity';
+import { OtpService } from './otps/otps.service';
+import { OtpModule } from './otps/otps.module';
 @Module({
-  imports: [UsersModule,OtpModule,
+  imports: [
+    TypeOrmModule.forFeature([Auth]),
+    OtpModule,
     JwtModule.register({
-      global: true, //global: true makes JWT services available across the entire application 
+      global: true, //global: true makes JWT services available across the entire application
       // without needing to import JwtModule in every module.
       secret: jwtConstants.secret,
-      signOptions: { expiresIn:'30m' },
+      signOptions: { expiresIn: '30m' },
     }),
-        ClientsModule.register([
+    ClientsModule.register([
       {
         name: 'AUTH_SERVICE',
         transport: Transport.RMQ,
@@ -29,23 +33,23 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
           },
         },
       },
-    ]),
-    ClientsModule.register([
       {
         name: 'USER_SERVICE',
         transport: Transport.RMQ,
-        options:{
-           urls: ['amqp://localhost:5672'],
+        options: {
+          urls: ['amqp://localhost:5672'],
           queue: 'user_queue',
           queueOptions: {
             durable: false,
           },
-        }
-      }
-    ])
+        },
+      },
+    ]),
   ],
   controllers: [AuthsController],
-  providers: [AuthsService,
+  providers: [
+    AuthsService,
+    OtpService,
     //global auth guard
     {
       provide: APP_GUARD, //Registers a global guard (AuthGuard) for the entire application
