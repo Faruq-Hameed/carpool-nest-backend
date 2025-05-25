@@ -11,8 +11,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Car } from 'src/modules/cars/entities/car.entity';
-import { Ride } from 'src/modules/rides/entities/ride.entity';
 import { Status } from 'src/shared/enums/status.enum';
 import { Otp } from 'src/modules/otps/entities/otp.entity';
 
