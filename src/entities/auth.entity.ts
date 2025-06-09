@@ -1,4 +1,3 @@
-import { UUID } from 'crypto';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -21,7 +20,7 @@ export class Auth {
   @Column()
   passcode: string;
 
-  @Column({ type: String, nullable: true })
+  @Column({ type: String, nullable: true }) //will be null until user is created
   userId: string; //the corresponding user id form user table
 
   @Index()

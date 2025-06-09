@@ -11,9 +11,26 @@ import { Auth } from './entities/auth.entity';
 import { Otp } from './entities/otp.entity';
 import { OtpService } from './otps/otps.service';
 import { OtpModule } from './otps/otps.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import authDatabaseConfig from './auth-config/auth-database.config';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Auth]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [authDatabaseConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const dbConfig = configService.get('database');
+        if (!dbConfig) {
+          throw new Error('Database configuration not found');
+        }
+        return dbConfig;
+      },
+      inject: [ConfigService],
+    }),
+    TypeOrmModule.forFeature([Auth, Otp]),
     OtpModule,
     JwtModule.register({
       global: true, //global: true makes JWT services available across the entire application
