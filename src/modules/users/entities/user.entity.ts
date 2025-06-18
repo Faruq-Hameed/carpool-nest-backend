@@ -32,18 +32,11 @@ export class User {
   @Column()
   lastname: string;
 
-  // @Index()
-  // @Column({ unique: true }) //NOT NEEDED
-  // username: string;
-
   @Column()
   password: string;
 
-  @OneToMany(() => Otp, (otp) => otp.user) //otp generated for the user
-  otps: Otp[];
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  balance: number;
+  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  // balance: number;
 
   @Column({ nullable: true })
   profilePicture?: string;
@@ -51,37 +44,31 @@ export class User {
   @Column({ nullable: true })
   occupation?: string;
 
-  @Column({ nullable: true })
-  residential: string;
+  // @Column({ nullable: true })
+  // residential: string; //SHOULD BE WITH KYC
 
-  @Index()
-  @Column({
-    type: 'enum',
-    enum: Status,
-    default: Status.RESTRICTED,
-  })
-  status: Status;
+  // @Index()
+  // @Column({
+  //   type: 'enum',
+  //   enum: Status,
+  //   default: Status.NOT_VERIFIED, // NOT NEEDED KYC WILL HANDLE THIS
+  // })
+  // status: Status;
 
-  @Column({ default: false })
-  isVerified: boolean;
+  // @Column({ default: false })
+  // isVerified: boolean;
 
-  @Column({ type: 'json', nullable: true })
-  verificationInfo?: Record<string, any>; //verification info returned from provider
+  // @Column({ type: 'json', nullable: true })
+  // verificationInfo?: Record<string, any>; //verification info returned from provider
 
-  @Column({ type: 'json', nullable: true })
-  licenseVerificationInfo?: Record<string, any>; //verification info returned from provider
+  // @Column({ type: 'json', nullable: true })
+  // licenseVerificationInfo?: Record<string, any>; //verification info returned from provider
 
-  @Column({ default: false })
-  isLicenseVerified: boolean;
+  // @Column({ default: false })
+  // isLicenseVerified: boolean;
 
   @Column({ default: false })
   isAdmin: boolean;
-
-  @Column({ default: 0 })
-  totalTripsJoined: number;
-
-  @Column({ default: 0 })
-  totalTripsCreated: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -92,22 +79,14 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  //   // Relationships
+  // Relationships
+
+  @OneToMany(() => Otp, (otp) => otp.user) //otp generated for the user
+  otps: Otp[];
+
   //   @OneToMany(() => Car, car => car.owner)
   //   cars: Car[];
 
   //   @OneToMany(() => Ride, ride => ride.driver)
   //   rides: Ride[];
-
-  // private async hashPassword(): Promise<void> {
-  //   if (this.password && this.password !== this.currentPasswordHash) {
-  //     const salt = await bcrypt.genSalt(10);
-  //     this.password = await bcrypt.hash(this.password, salt);
-  //   }
-  // }
-
-  // Method to compare passwords
-  // async comparePassword(userPassword: string): Promise<boolean> {
-  //   return bcrypt.compare(userPassword, this.password);
-  // }
 }

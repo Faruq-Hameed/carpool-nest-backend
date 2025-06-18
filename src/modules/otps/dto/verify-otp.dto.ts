@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { PurposeEnum, OtpChannel } from '../entities/otp.entity';
 import { Optional } from '@nestjs/common';
 
-export class validateOtpDto {
+export class verifyOtpDto {
   @IsString()
   @Optional()
   phonenumber: string;

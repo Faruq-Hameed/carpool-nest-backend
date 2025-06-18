@@ -3,11 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Otp } from './entities/otp.entity';
 import { OtpService } from './otps.service';
 import { UsersModule } from '../users/users.module';
-import { OtsController } from './otps.controller';
+import { OtpController } from './otps.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Otp]), UsersModule],
-  controllers: [OtsController],
+  controllers: [OtpController],
   providers: [OtpService],
   exports: [OtpService],
 })

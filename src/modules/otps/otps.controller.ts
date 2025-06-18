@@ -8,10 +8,13 @@ import { Public } from 'src/common/guards/public.guard';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { OtpService } from './otps.service';
 import { IAuthResponse } from '../auths/interfaces/response';
+import { verifyOtpDto } from './dto/verify-otp.dto';
+import { AuthsService } from '../auths/auths.service';
 
 @Controller('otps')
-export class OtsController {
-  constructor(private readonly otpService: OtpService) {}
+export class OtpController {
+  constructor(private readonly otpService: OtpService,
+  ) {}
 
   @Public()
   @Post()
@@ -23,4 +26,5 @@ export class OtsController {
       message,
     };
   }
+
 }

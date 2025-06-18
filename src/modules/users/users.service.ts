@@ -25,16 +25,11 @@ export class UserService {
     const { email, phonenumber } = createUserDto;
     const existingUser = await this.userRepository.findOne({
       where: [{ email }, { phonenumber }],
-      select: ['id', 'email', 'phonenumber', ],
+      select: ['id', 'email', 'phonenumber'],
     });
 
     if (existingUser) {
-      const existingField =
-        existingUser.email === email
-          ? 'email'
-          : existingUser.phonenumber === phonenumber
-            ? 'phone'
-            : 'username';
+      const existingField = existingUser.email === email ? 'email' : 'phone';
       throw new ConflictException(
         `A user with this ${existingField} already exist`,
       );
@@ -46,7 +41,6 @@ export class UserService {
     //   id: savedData.id,
     //   firstname: savedData.firstname,
     //   lastname: savedData.lastname,
-    //   username: savedData.username,
     //   email: savedData.email,
     //   phonenumber: savedData.phonenumber,
     //   profilePicture: savedData.profilePicture,
@@ -68,16 +62,16 @@ export class UserService {
   async findUserByField(
     field: Partial<User>,
     selectFields?: (keyof User)[],
-    throwError?: boolean
+    throwError?: boolean,
   ): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: field,
       select: selectFields || undefined, // If no fields are specified, return all fields
     });
-    if(!user && throwError){
-      throw new NotFoundException('user with not found')
+    if (!user && throwError) {
+      throw new NotFoundException('user with not found');
     }
-    return user
+    return user;
   }
 
   /**This service check if the user exists and if not it throw error from here */

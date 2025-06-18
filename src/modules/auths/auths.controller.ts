@@ -21,22 +21,45 @@ import { Public } from 'src/common/guards/public.guard';
 import { CreateOtpDto } from '../otps/dto/create-otp.dto';
 import { ChangePasswordDto } from './dto/change-password-dto';
 import { AuthResponseDto } from './dto/auth-response-dto';
+import { verifyOtpDto } from '../otps/dto/verify-otp.dto';
+import { OtpService } from '../otps/otps.service';
 
 @ApiTags('auth')
 @Controller('auths')
 export class AuthsController {
-  constructor(private readonly authsService: AuthsService) {}
+  constructor(
+    private readonly authsService: AuthsService,
+    private readonly otpService: OtpService, // Inject OtpService to generate OTPs
+  ) {}
 
   @Public()
   @Post()
   @ApiOperation({ summary: 'Register a new user' })
   @ApiBody({ type: CreateUserDto }) //type of the request body
   @ApiCreatedResponse({ description: 'User created', type: AuthResponseDto }) //NOT YET TESTED
-  async create(@Body() createUserDto: CreateUserDto): Promise<IGeneralResponse> {
+  async create(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<IGeneralResponse> {
     const message = await this.authsService.register(createUserDto);
     return {
       message,
       data: null,
+    };
+  }
+
+  @Public()
+  @Post('token/onboarding')
+  @ApiOperation({ summary: 'Generate token using otp in onboarding' })
+  @ApiBody({ type: verifyOtpDto }) //type of the request body
+  @ApiCreatedResponse({ description: 'Generate token', type: AuthResponseDto }) //NOT YET TESTED
+  async CreateTokenDuringOnboarding(
+    @Body() verifyOtpDto: verifyOtpDto,
+  ): Promise<IGeneralResponse> {
+    const data =
+      await this.authsService.generateTokenDuringOnboarding(verifyOtpDto);
+    return {
+      message: 'Token generated successfully',
+      data,
     };
   }
 
@@ -75,17 +98,16 @@ export class AuthsController {
     };
   }
 
-
   @Public()
-  @Get('check-user') 
+  @Get('check-user')
   async checkUser(@Body() data: any): Promise<any> {
-    console.log("request made to auth microservice from controller");
+    console.log('request made to auth microservice from controller');
     return await this.authsService.checkUser({ username: 'john' });
   }
   @Public()
   @Post('emit-login')
   async emitLogin(@Body() body: { username: string }) {
-    console.log('Emitted from controller')
+    console.log('Emitted from controller');
     return this.authsService.emtUserLogin(body.username);
   }
 }

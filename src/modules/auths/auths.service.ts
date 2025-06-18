@@ -13,6 +13,7 @@ import { CreateOtpDto } from '../otps/dto/create-otp.dto';
 import { OtpService } from '../otps/otps.service';
 import { OtpChannel, PurposeEnum } from '../otps/entities/otp.entity';
 import { ChangePasswordDto } from './dto/change-password-dto';
+import { verifyOtpDto } from '../otps/dto/verify-otp.dto';
 
 @Injectable()
 export class AuthsService {
@@ -25,8 +26,11 @@ export class AuthsService {
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<string> {
-    createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-    await this.userService.createUser(createUserDto);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    await this.userService.createUser({
+      ...createUserDto,
+      password: hashedPassword,
+    });
     const otpMessage = await this.otpService.generateOtp({
       purpose: PurposeEnum.VERIFY_EMAIL,
       channel: OtpChannel.EMAIL,
@@ -39,24 +43,61 @@ export class AuthsService {
     // let him know next step too i.e basic kyc
   }
 
-  async otpLogin(otpLoginDto: OtpLoginDto): Promise<IAuthReturn> {
-    const { email, otp } = otpLoginDto; //THIS SHOULD BE EMAIL OR PHONE
+  /** service to generate token during account creation */
+  async generateTokenDuringOnboarding(verifyOtpDto: verifyOtpDto): Promise<IAuthReturn> {
+    const { email, otp } = verifyOtpDto; //THIS SHOULD BE EMAIL OR PHONE
     const user = await this.userService.findUserByField(
       { email },
-      ['id', 'firstname', 'lastname', 'email', 'phonenumber', 'profilePicture'],
+      [
+        'id',
+        'firstname',
+        'lastname',
+        'email',
+        'phonenumber',
+        'profilePicture',
+        'isAdmin',
+      ],
       true, //throw error if not found
     );
     //validate otp
-    await this.otpService.validateOtp({
+    await this.otpService.verifyOtp({
       email,
       otp,
       phonenumber: null,
       purpose: PurposeEnum.VERIFY_EMAIL,
     });
+    const token = await this.generateToken(user);
     return {
-      token: await this.jwtService.signAsync({
-        userId: user.id,
-      }),
+      token,
+       user
+    };
+  }
+
+  async otpLogin(otpLoginDto: OtpLoginDto): Promise<IAuthReturn> {
+    const { email, otp } = otpLoginDto; //THIS SHOULD BE EMAIL OR PHONE
+    const user = await this.userService.findUserByField(
+      { email },
+      [
+        'id',
+        'firstname',
+        'lastname',
+        'email',
+        'phonenumber',
+        'profilePicture',
+        'isAdmin',
+      ],
+      true, //throw error if not found
+    );
+    //validate otp
+    await this.otpService.verifyOtp({
+      email,
+      otp,
+      phonenumber: null,
+      purpose: PurposeEnum.VERIFY_EMAIL,
+    });
+    const token = await this.generateToken(user);
+    return {
+      token,
       user,
     };
   }
@@ -85,11 +126,11 @@ export class AuthsService {
     // const {profilePicture} = user
     // user.profilePicture = user.profilePicture?
     delete user.password;
+    const token = await this.generateToken(user);
+    //
     //login record should be stored later
     return {
-      token: await this.jwtService.signAsync({
-        userId: user.id,
-      }),
+      token,
       user,
     };
   }
@@ -103,7 +144,7 @@ export class AuthsService {
       true,
     );
     //validate otp
-    await this.otpService.validateOtp({
+    await this.otpService.verifyOtp({
       email,
       otp,
       phonenumber: null,
@@ -111,6 +152,14 @@ export class AuthsService {
     });
     user.password = await bcrypt.hash(password, 10);
     await this.userService.updateUser(user.id, user);
+  }
+
+  /**Service to generate jwt token */
+  async generateToken(user: User): Promise<string> {
+    return this.jwtService.signAsync({
+      userId: user.id,
+      isAdmin: user.isAdmin,
+    });
   }
 
   async checkUser(data: any) {

@@ -6,8 +6,9 @@ import { Repository, MoreThan, LessThan } from 'typeorm';
 import { Otp } from './entities/otp.entity';
 import { UserService } from '../users/users.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
-import { validateOtpDto } from './dto/validate-otp.dto';
+import { verifyOtpDto } from './dto/verify-otp.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { IUser } from '../users/interfaces/users.interface';
 
 // import { Cron, CronExpression } from '@nestjs/schedule';
 @Injectable()
@@ -59,7 +60,7 @@ export class OtpService {
     }
   }
 
-  async validateOtp(validateOtp: validateOtpDto):Promise<void> {
+  async verifyOtp(validateOtp: verifyOtpDto):Promise<void> {
     const { otp, purpose } = validateOtp;
     const isEmail = !!validateOtp.email;
     const field = isEmail
