@@ -1,22 +1,10 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CloudinaryService } from './cloudinary/cloudinary.service';
-import { AuthClientService } from './auths-clients.service';
 import { Public } from './common/guards/public.guard';
 
-  @Public()
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService,
-    private readonly cloudinaryService: CloudinaryService,
-    // private readonly authClient: AuthClientService
-  ) {}
-
-  @Post('upload')
-  upload(){
-    
-  }
-  
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getHello(): string {
