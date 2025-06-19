@@ -58,8 +58,7 @@ export class AuthsController {
   async verifyEmail(
     @Body() verifyOtpDto: verifyOtpDto,
   ): Promise<IGeneralResponse> {
-    const data =
-      await this.authsService.verifyEmail(verifyOtpDto);
+    const data = await this.authsService.verifyEmail(verifyOtpDto);
     return {
       message: 'Email verified successfully. Token generated.',
       data,
@@ -69,13 +68,7 @@ export class AuthsController {
   @Public()
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto): Promise<IAuthResponse> {
-    const response = await this.authsService.login(loginUserDto);
-    return {
-      message: 'User login successfully',
-      data: {
-        ...response,
-      },
-    };
+    return await this.authsService.login(loginUserDto);
   }
 
   @Public()

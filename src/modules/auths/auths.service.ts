@@ -1,4 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ClientProxy } from '@nestjs/microservices';
@@ -14,6 +19,7 @@ import { OtpService } from '../otps/otps.service';
 import { OtpChannel, OtpPurpose } from '../otps/entities/otp.entity';
 import { ChangePasswordDto } from './dto/change-password-dto';
 import { verifyOtpDto } from '../otps/dto/verify-otp.dto';
+import { Status } from 'src/shared/enums/status.enum';
 
 @Injectable()
 export class AuthsService {
@@ -44,9 +50,7 @@ export class AuthsService {
   }
 
   /** service to generate token during account creation */
-  async verifyEmail(
-    verifyOtpDto: verifyOtpDto,
-  ): Promise<IAuthReturn> {
+  async verifyEmail(verifyOtpDto: verifyOtpDto): Promise<IAuthReturn> {
     const { email, otp } = verifyOtpDto; //THIS SHOULD BE EMAIL OR PHONE
     const user = await this.userService.findUserByField(
       { email },
@@ -58,9 +62,13 @@ export class AuthsService {
         'phonenumber',
         'profilePicture',
         'isAdmin',
+        'emailStatus',
       ],
       true, //throw error if not found
     );
+    if (user.emailStatus === Status.VERIFIED) {
+      throw new BadRequestException('Email already verified');
+    }
     //validate otp
     await this.otpService.verifyOtp({
       email,
@@ -73,6 +81,36 @@ export class AuthsService {
       token,
       user,
     };
+  }
+
+  /** service to verify phone number */
+  async verifyPhone(verifyOtpDto: verifyOtpDto): Promise<void> {
+    const { phonenumber, otp } = verifyOtpDto; //THIS SHOULD BE phonenumber OR PHONE
+    const user = await this.userService.findUserByField(
+      { phonenumber },
+      [
+        'id',
+        'firstname',
+        'lastname',
+        'email',
+        'phonenumber',
+        'profilePicture',
+        'isAdmin',
+        'phoneStatus'
+      ],
+      true, //throw error if not found
+    );
+     if (user.phoneStatus === Status.VERIFIED) {
+      throw new BadRequestException('Phone number already verified');
+    }
+    //validate otp
+    await this.otpService.verifyOtp({
+      phonenumber,
+      otp,
+      email: null,
+      purpose: OtpPurpose.VERIFY_PHONE,
+    });
+
   }
 
   async otpLogin(otpLoginDto: OtpLoginDto): Promise<IAuthReturn> {
@@ -104,7 +142,7 @@ export class AuthsService {
     };
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<IAuthReturn> {
+  async login(loginUserDto: LoginUserDto): Promise<IAuthResponse> {
     const { email, password } = loginUserDto;
     const user = await this.userService.findUserByField(
       { email },
@@ -123,27 +161,36 @@ export class AuthsService {
     );
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new BadRequestException('Invalid credentials');
     }
-    if(user)
     delete user.password;
-    const token = await this.generateToken(user);
+
+    let token: string | null = null;
     //check if email is not verified and create otp if not verified
-    if (!user.emailVerified) {
+    if (user.emailStatus !== Status.VERIFIED) {
       const otpMessage = await this.otpService.generateOtp({
         purpose: OtpPurpose.VERIFY_EMAIL,
         channel: OtpChannel.EMAIL,
         email: user.email,
         phonenumber: null,
       });
-      throw new UnauthorizedException(
-        `Email not verified. ${otpMessage}`,
-      );
+
+      return {
+        message: otpMessage,
+        data: {
+          token, //no token generated, user should verify email first
+          user,
+        },
+      };
     }
+    token = await this.generateToken(user);
     //LOGIN RECORD SHOULD BE STORED LATER
     return {
-      token,
-      user,
+      message: 'User login successfully',
+      data: {
+        token,
+        user,
+      },
     };
   }
 

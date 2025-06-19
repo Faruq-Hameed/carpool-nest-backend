@@ -22,15 +22,15 @@ export class User {
   @Column({ unique: true })
   phonenumber: string;
 
-  @Column()
-  phoneVerified: boolean;
+  @Column({type: 'enum', enum: Status, default: Status.NOT_VERIFIED, nullable: false})
+  phoneStatus: Status;
 
   @Index()
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  emailVerified: boolean;
+  @Column({ type: 'enum', enum: Status, default: Status.NOT_VERIFIED, nullable: false })
+  emailStatus: Status;
 
   @Column()
   firstname: string;
