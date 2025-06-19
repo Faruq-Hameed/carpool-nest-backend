@@ -22,9 +22,15 @@ export class User {
   @Column({ unique: true })
   phonenumber: string;
 
+  @Column()
+  phoneVerified: boolean;
+
   @Index()
   @Column({ unique: true })
   email: string;
+
+  @Column()
+  emailVerified: boolean;
 
   @Column()
   firstname: string;

@@ -11,7 +11,7 @@ import { User } from '../users/entities/user.entity';
 import { IAuthResponse, IAuthReturn } from './interfaces/response';
 import { CreateOtpDto } from '../otps/dto/create-otp.dto';
 import { OtpService } from '../otps/otps.service';
-import { OtpChannel, PurposeEnum } from '../otps/entities/otp.entity';
+import { OtpChannel, OtpPurpose } from '../otps/entities/otp.entity';
 import { ChangePasswordDto } from './dto/change-password-dto';
 import { verifyOtpDto } from '../otps/dto/verify-otp.dto';
 
@@ -32,7 +32,7 @@ export class AuthsService {
       password: hashedPassword,
     });
     const otpMessage = await this.otpService.generateOtp({
-      purpose: PurposeEnum.VERIFY_EMAIL,
+      purpose: OtpPurpose.VERIFY_EMAIL,
       channel: OtpChannel.EMAIL,
       email: createUserDto.email,
       phonenumber: null,
@@ -44,7 +44,9 @@ export class AuthsService {
   }
 
   /** service to generate token during account creation */
-  async generateTokenDuringOnboarding(verifyOtpDto: verifyOtpDto): Promise<IAuthReturn> {
+  async verifyEmail(
+    verifyOtpDto: verifyOtpDto,
+  ): Promise<IAuthReturn> {
     const { email, otp } = verifyOtpDto; //THIS SHOULD BE EMAIL OR PHONE
     const user = await this.userService.findUserByField(
       { email },
@@ -64,12 +66,12 @@ export class AuthsService {
       email,
       otp,
       phonenumber: null,
-      purpose: PurposeEnum.VERIFY_EMAIL,
+      purpose: OtpPurpose.VERIFY_EMAIL,
     });
     const token = await this.generateToken(user);
     return {
       token,
-       user
+      user,
     };
   }
 
@@ -93,7 +95,7 @@ export class AuthsService {
       email,
       otp,
       phonenumber: null,
-      purpose: PurposeEnum.VERIFY_EMAIL,
+      purpose: OtpPurpose.VERIFY_EMAIL,
     });
     const token = await this.generateToken(user);
     return {
@@ -123,12 +125,22 @@ export class AuthsService {
     if (!isPasswordCorrect) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    // const {profilePicture} = user
-    // user.profilePicture = user.profilePicture?
+    if(user)
     delete user.password;
     const token = await this.generateToken(user);
-    //
-    //login record should be stored later
+    //check if email is not verified and create otp if not verified
+    if (!user.emailVerified) {
+      const otpMessage = await this.otpService.generateOtp({
+        purpose: OtpPurpose.VERIFY_EMAIL,
+        channel: OtpChannel.EMAIL,
+        email: user.email,
+        phonenumber: null,
+      });
+      throw new UnauthorizedException(
+        `Email not verified. ${otpMessage}`,
+      );
+    }
+    //LOGIN RECORD SHOULD BE STORED LATER
     return {
       token,
       user,
@@ -148,7 +160,7 @@ export class AuthsService {
       email,
       otp,
       phonenumber: null,
-      purpose: PurposeEnum.RESET_PASSWORD,
+      purpose: OtpPurpose.RESET_PASSWORD,
     });
     user.password = await bcrypt.hash(password, 10);
     await this.userService.updateUser(user.id, user);

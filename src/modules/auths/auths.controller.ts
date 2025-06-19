@@ -48,17 +48,20 @@ export class AuthsController {
   }
 
   @Public()
-  @Post('token/onboarding')
-  @ApiOperation({ summary: 'Generate token using otp in onboarding' })
+  @Post('verify/email')
+  @ApiOperation({ summary: 'Verify email during account creation' })
   @ApiBody({ type: verifyOtpDto }) //type of the request body
-  @ApiCreatedResponse({ description: 'Generate token', type: AuthResponseDto }) //NOT YET TESTED
-  async CreateTokenDuringOnboarding(
+  @ApiCreatedResponse({
+    description: 'Verify email successfully',
+    type: AuthResponseDto,
+  }) //NOT YET TESTED
+  async verifyEmail(
     @Body() verifyOtpDto: verifyOtpDto,
   ): Promise<IGeneralResponse> {
     const data =
-      await this.authsService.generateTokenDuringOnboarding(verifyOtpDto);
+      await this.authsService.verifyEmail(verifyOtpDto);
     return {
-      message: 'Token generated successfully',
+      message: 'Email verified successfully. Token generated.',
       data,
     };
   }

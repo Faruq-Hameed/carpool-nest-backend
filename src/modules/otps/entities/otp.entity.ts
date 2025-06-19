@@ -7,12 +7,12 @@ import {
 } from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
 
-export enum PurposeEnum {
+export enum OtpPurpose {
   VERIFY_PHONE = 'verify_phone',
   VERIFY_EMAIL = 'verify_email',
   RESET_PASSWORD = 'reset_password',
   RESET_EMAIL = 'reset_email',
-  LOGIN= 'login'
+  LOGIN = 'login',
 }
 
 export enum OtpChannel {
@@ -32,7 +32,7 @@ export class Otp {
   otp: string;
 
   @Column()
-  purpose: PurposeEnum;
+  purpose: OtpPurpose;
 
   @Column()
   channel: OtpChannel; //channel used to receive the otp
