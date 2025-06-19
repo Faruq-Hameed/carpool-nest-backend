@@ -3,6 +3,10 @@ import { Optional } from '@nestjs/common';
 import { IsEmail } from 'class-validator';
 
 export class ChangePasswordDto {
+  @IsString({ message: 'change password is required' })
+  @IsNotEmpty({ message: 'change password is required' })
+  oldPassword: string;
+
   @IsString({ message: 'new password is required' })
   @IsNotEmpty({ message: 'new password is required' })
   password: string;

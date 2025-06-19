@@ -17,9 +17,11 @@ import { IAuthResponse, IAuthReturn } from './interfaces/response';
 import { CreateOtpDto } from '../otps/dto/create-otp.dto';
 import { OtpService } from '../otps/otps.service';
 import { OtpChannel, OtpPurpose } from '../otps/entities/otp.entity';
-import { ChangePasswordDto } from './dto/change-password-dto';
+// import { ChangePasswordDto } from './dto/';
 import { verifyOtpDto } from '../otps/dto/verify-otp.dto';
 import { Status } from 'src/shared/enums/status.enum';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 
 @Injectable()
 export class AuthsService {
@@ -96,11 +98,11 @@ export class AuthsService {
         'phonenumber',
         'profilePicture',
         'isAdmin',
-        'phoneStatus'
+        'phoneStatus',
       ],
       true, //throw error if not found
     );
-     if (user.phoneStatus === Status.VERIFIED) {
+    if (user.phoneStatus === Status.VERIFIED) {
       throw new BadRequestException('Phone number already verified');
     }
     //validate otp
@@ -110,7 +112,6 @@ export class AuthsService {
       email: null,
       purpose: OtpPurpose.VERIFY_PHONE,
     });
-
   }
 
   async otpLogin(otpLoginDto: OtpLoginDto): Promise<IAuthReturn> {
@@ -195,7 +196,26 @@ export class AuthsService {
   }
 
   /**service to password */
-  async resetPassword(changePasswordDto: ChangePasswordDto): Promise<void> {
+  async resetPassword(ResetPasswordDto: ResetPasswordDto): Promise<void> {
+    const { email, password, otp } = ResetPasswordDto;
+    const user = await this.userService.findUserByField(
+      { email },
+      ['id', 'firstname', 'lastname', 'email', 'phonenumber', 'password'],
+      true,
+    );
+    //validate otp
+    await this.otpService.verifyOtp({
+      email,
+      otp,
+      phonenumber: null,
+      purpose: OtpPurpose.RESET_PASSWORD,
+    });
+    user.password = await bcrypt.hash(password, 10);
+    await this.userService.updateUser(user.id, user);
+  }
+
+  /**service to Change password */ //NOT COPLETED
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
     const { email, password, otp } = changePasswordDto;
     const user = await this.userService.findUserByField(
       { email },

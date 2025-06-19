@@ -19,10 +19,10 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { IAuthResponse, IGeneralResponse } from './interfaces/response';
 import { Public } from 'src/common/guards/public.guard';
 import { CreateOtpDto } from '../otps/dto/create-otp.dto';
-import { ChangePasswordDto } from './dto/change-password-dto';
 import { AuthResponseDto } from './dto/auth-response-dto';
 import { verifyOtpDto } from '../otps/dto/verify-otp.dto';
 import { OtpService } from '../otps/otps.service';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
 
 @ApiTags('auth')
 @Controller('auths')
@@ -74,9 +74,9 @@ export class AuthsController {
   @Public()
   @Post('forget-password')
   async forgetPassword(
-    @Body() changePasswordDto: ChangePasswordDto,
+    @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<IAuthResponse> {
-    await this.authsService.resetPassword(changePasswordDto);
+    await this.authsService.resetPassword(resetPasswordDto);
     return {
       message: 'Password reset successfully', //the user should login again
       data: null,
@@ -91,6 +91,23 @@ export class AuthsController {
       data: {
         ...response,
       },
+    };
+  }
+
+  @Post('verify/phone')
+  @ApiOperation({ summary: 'Verify phone number' })
+  @ApiBody({ type: verifyOtpDto }) //type of the request body
+  @ApiCreatedResponse({
+    description: 'Verify phone successfully',
+    type: AuthResponseDto,
+  }) //NOT YET TESTED
+  async verifyPhone(
+    @Body() verifyOtpDto: verifyOtpDto,
+  ): Promise<IGeneralResponse> {
+    const data = await this.authsService.verifyPhone(verifyOtpDto);
+    return {
+      message: 'Phone number verified successfully.',
+      data,
     };
   }
 

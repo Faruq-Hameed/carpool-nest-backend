@@ -22,11 +22,11 @@ export class OtpService {
     private readonly mailService: MailerService,
   ) {}
 
-  async generateOtp(generateOtp: CreateOtpDto): Promise<string> {
-    const isEmail = !!generateOtp.email;
-    const findBy = isEmail
-      ? { email: generateOtp.email }
-      : { phonenumber: generateOtp.phonenumber };
+  async generateOtp(createOtpDto: CreateOtpDto): Promise<string> {
+    const isChannelEmail = !!createOtpDto.email;
+    const findBy = isChannelEmail
+      ? { email: createOtpDto.email }
+      : { phonenumber: createOtpDto.phonenumber };
     const user = await this.userService.findUserByField(
       findBy,
       ['email', 'phonenumber', 'id', 'firstname'],
@@ -35,35 +35,35 @@ export class OtpService {
     //now generate otp and send to the user
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     const otp = this.otpRepository.create({
-      ...generateOtp,
+      ...createOtpDto,
       otp: code,
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
     await this.otpRepository.save(otp);
     console.log({ otp });
 
-    if (isEmail) {
+    if (isChannelEmail) {
       await this.mailService.sendMail({
         to: user.email,
         subject: 'Your OTP Code',
-        text: `kindly use this to ${generateOtp.purpose}`,
+        text: `kindly use this to ${createOtpDto.purpose}`,
         // template: './otp', // assuming a mailer template named otp.hbs or similar
         context: {
           name: user.firstname || user.email,
           code,
         },
       });
-      return `OTP sent to ${generateOtp.email}`;
+      return `OTP sent to ${createOtpDto.email}`;
     } else {
       // Placeholder for SMS logic
-      return `otp sent to ${generateOtp.email}`; //.phone later
+      return `otp sent to ${createOtpDto.email}`; //.phone later
     }
   }
 
   async verifyOtp(validateOtp: verifyOtpDto):Promise<void> {
     const { otp, purpose } = validateOtp;
-    const isEmail = !!validateOtp.email;
-    const field = isEmail
+    const isChannelEmail = !!validateOtp.email;
+    const field = isChannelEmail
       ? { email: validateOtp.email }
       : { phonenumber: validateOtp.phonenumber };
     const record = await this.otpRepository.findOne({
@@ -78,6 +78,7 @@ export class OtpService {
       throw new BadRequestException('Invalid or expired OTP');
     }
     // Delete the OTP record after successful validation
+    //STORE THE RECORD OF THE TASK LATER
     await this.otpRepository.delete(record.id);
   }
 
