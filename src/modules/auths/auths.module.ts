@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthsService } from './auths.service';
 import { AuthsController } from './auths.controller';
-import { UserService } from '../users/users.service';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
@@ -9,17 +8,18 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { OtpModule } from '../otps/otps.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MailerModule } from '@nestjs-modules/mailer';
 @Module({
   imports: [UsersModule,OtpModule,
-    // MailerModule.forRoot({
-    //   transport: {
-    //     host: process.env.EMAIL_HOST,
-    //     auth: {
-    //       user: process.env.EMAIL_USERNAME,
-    //       pass: process.env.EMAIL_PASSWORD,
-    //     },
-    //   },
-    // }),
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.EMAIL_HOST,
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      },
+    }),
     JwtModule.register({
       global: true, //global: true makes JWT services available across the entire application 
       // without needing to import JwtModule in every module.

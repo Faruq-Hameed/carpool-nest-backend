@@ -8,11 +8,11 @@ import {
 import { User } from 'src/modules/users/entities/user.entity';
 
 export enum OtpPurpose {
-  VERIFY_PHONE = 'verify_phone',
-  VERIFY_EMAIL = 'verify_email',
-  RESET_PASSWORD = 'reset_password',
-  RESET_EMAIL = 'reset_email',
-  LOGIN = 'login',
+  VERIFY_PHONE = 'VERIFY_PHONE',
+  VERIFY_EMAIL = 'VERIFY_EMAIL',
+  RESET_PASSWORD = 'RESET_PASSWORD',
+  RESET_EMAIL = 'RESET_EMAIL',
+  LOGIN = 'LOGIN',
 }
 
 export enum OtpChannel {
@@ -30,6 +30,12 @@ export class Otp {
 
   @Column()
   otp: string;
+
+  @Column({ nullable: true })
+  email: string;
+
+  @Column({ nullable: true })
+  phonenumber: string;
 
   @Column()
   purpose: OtpPurpose;

@@ -18,10 +18,8 @@ import { LoginUserDto, OtpLoginDto } from './dto/login-auth.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { IAuthResponse, IGeneralResponse } from './interfaces/response';
 import { Public } from 'src/common/guards/public.guard';
-import { CreateOtpDto } from '../otps/dto/create-otp.dto';
 import { AuthResponseDto } from './dto/auth-response-dto';
 import { verifyOtpDto } from '../otps/dto/verify-otp.dto';
-import { OtpService } from '../otps/otps.service';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 
 @ApiTags('auth')
@@ -29,7 +27,6 @@ import { ResetPasswordDto } from './dto/resetPassword.dto';
 export class AuthsController {
   constructor(
     private readonly authsService: AuthsService,
-    private readonly otpService: OtpService, // Inject OtpService to generate OTPs
   ) {}
 
   @Public()

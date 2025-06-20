@@ -1,14 +1,14 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 import { OtpPurpose, OtpChannel } from '../entities/otp.entity';
 import { Optional } from '@nestjs/common';
 
 export class CreateOtpDto {
   @IsString()
-  @Optional()
+  @IsOptional()
   phonenumber: string;
 
   @IsEmail()
-  @Optional()
+  @IsOptional()
   email: string;
 
   @IsNotEmpty({ message: 'purpose is required' })

@@ -69,7 +69,7 @@ export class UserService {
       select: selectFields || undefined, // If no fields are specified, return all fields
     });
     if (!user && throwError) {
-      throw new NotFoundException('user with not found');
+      throw new NotFoundException('user not found');
     }
     return user;
   }
