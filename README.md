@@ -1,99 +1,184 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Carpool Nest Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project is the backend system for a carpooling application, built with [NestJS](https://nestjs.com/) and TypeScript. It was originally developed as a monolith and is designed for seamless transition to microservices as system demand grows.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Modern NestJS/TypeScript stack
+- PostgreSQL database with TypeORM for robust relational data handling
+- JWT-based authentication & authorization
+- Carpool ride management (creation, joining, tracking)
+- User management (registration, profiles)
+- Payment integration (Stripe/PayPal-ready)
+- Scalable codebase, architected for future microservice extraction
 
-## Project setup
+---
+
+## Project Setup
 
 ```bash
-$ npm install
+git clone https://github.com/Faruq-Hameed/carpool-nest-backend.git
+cd carpool-nest-backend
+npm install
 ```
 
-## Compile and run the project
+### Environment Variables
+
+Create a `.env` file at the project root:
+
+```
+DATABASE_URL=postgres://username:password@localhost:5432/carpool
+JWT_SECRET=your_jwt_secret
+# Add other variables as needed
+```
+
+---
+
+## Running the Application
 
 ```bash
 # development
-$ npm run start
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# production
+npm run build
+npm run start:prod
 ```
 
-## Run tests
+---
+
+## Testing
 
 ```bash
 # unit tests
-$ npm run test
+npm run test
 
 # e2e tests
-$ npm run test:e2e
+npm run test:e2e
 
 # test coverage
-$ npm run test:cov
+npm run test:cov
 ```
+
+---
+
+## Architecture
+
+The system is currently a monolith but is pre-structured for future microservice scaling.
+
+### Hybrid REST + gRPC Architecture
+
+```
+[Client (Mobile/Web)]
+    |
+    | REST API / WebSockets (Real-time)
+    v
+[NestJS API Gateway]
+    |
+    | (future: gRPC for internal communication)
+    v
+[Go Ride Matching Service] — gRPC — [Python AI Service]
+    |
+[PostgreSQL DB]
+```
+
+- **REST API:** Communication between clients and backend (NestJS).
+- **gRPC:** Planned for fast, efficient backend service-to-service communication.
+- **WebSockets:** For real-time ride tracking.
+
+#### Service Breakdown (Future Microservices)
+
+| Service           | Tech Stack                  | Purpose                                    |
+|-------------------|----------------------------|--------------------------------------------|
+| API Gateway       | NestJS + TypeScript        | Auth, requests, payments                   |
+| Ride Matching     | Go + gRPC + PostgreSQL     | Finds best driver for passenger            |
+| Route Optimization| Python + TensorFlow        | AI-powered route & ETA optimization        |
+| Notifications     | NestJS + Firebase          | SMS, push notifications                    |
+| Payments          | NestJS + Stripe/PayPal     | Processes ride payments                    |
+| Ride Tracking     | WebSockets (NestJS)        | Real-time driver tracking                  |
+
+#### Database Example (`rides` table)
+```sql
+CREATE TABLE rides (
+    id SERIAL PRIMARY KEY,
+    passenger_name VARCHAR(100),
+    driver_id INT,
+    origin_lat FLOAT,
+    origin_long FLOAT,
+    destination_lat FLOAT,
+    destination_long FLOAT,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    distance FLOAT,
+    fare FLOAT
+);
+```
+
+---
+
+## Available API Endpoints
+
+### Auth
+
+- `POST /auths` — Register a new user
+- `POST /auths/login` — User login
+- `POST /auths/forget-password` — Request password reset
+- `POST /auths/otp-login` — OTP-based login
+- `GET /auths/check-user` — Check user existence
+- `POST /auths/emit-login` — Emit login event
+
+### Rides
+
+- `POST /rides/match` — Book a ride (request matching)
+- `GET /rides/{id}/history` — Get ride history by user/ride
+- `POST /rides/{id}/complete` — Complete a ride
+
+### Payments
+
+- `POST /payments/pay` — Make a payment for a ride
+
+### WebSockets
+
+- Real-time GPS updates:  
+  - Driver: `socket.emit("updateLocation", { driverId, lat, long })`
+  - Passenger: `socket.on("location_1", (data) => {...})`
+
+---
+
+## Project Structure
+
+- `src/`  
+  Main application code (modules, controllers, services, entities)
+- `test/`  
+  Automated tests
+
+---
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+See the [NestJS deployment docs](https://docs.nestjs.com/deployment) for best practices.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+---
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+## Future Plans
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- Extract core modules into microservices as demand scales.
+- Add advanced ride-matching, payment, and notification features.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## Contributing
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Pull requests and contributions are welcome! Open an issue first to discuss ideas or improvements.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+[Specify your license here]
+
+---
+
+*Maintained by [Faruq-Hameed](https://github.com/Faruq-Hameed).*
