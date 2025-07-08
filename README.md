@@ -11,7 +11,7 @@ This project is the backend system for a carpooling application, built with [Nes
 - JWT-based authentication & authorization
 - Carpool ride management (creation, joining, tracking)
 - User management (registration, profiles)
-- Payment integration (Stripe/PayPal-ready)
+- Payment integration (proposed providers: Stripe/PayPal-ready)
 - Scalable codebase, architected for future microservice extraction
 
 ---
